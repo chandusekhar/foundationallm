@@ -39,6 +39,89 @@ from foundationallm.langchain.language_models import LanguageModelBase
 from foundationallm.models.orchestration import CompletionRequest, CompletionResponse
 from foundationallm.langchain.retrievers import SearchServiceFilterRetriever
 
+from langchain.callbacks.base import BaseCallbackHandler
+
+from typing import Any, Dict, List, Union
+from langchain_core.agents import AgentAction, AgentFinish
+from langchain.schema.output import LLMResult
+from langchain_core.messages.base import BaseMessage
+
+class MyCustomHandler(BaseCallbackHandler):
+
+    full_prompt : str
+    context : str
+
+    def on_llm_start(
+        self, serialized: Dict[str, Any], prompts: List[str], **kwargs: Any
+    ) -> Any:
+        """Run when LLM starts running."""
+        pass
+
+    def on_chat_model_start(
+        self, serialized: Dict[str, Any], messages: List[List[BaseMessage]], **kwargs: Any
+    ) -> Any:
+        """Run when Chat Model starts running."""
+        pass
+
+    def on_llm_new_token(self, token: str, **kwargs: Any) -> Any:
+        """Run on new LLM token. Only available when streaming is enabled."""
+        pass
+
+    def on_llm_end(self, response: LLMResult, **kwargs: Any) -> Any:
+        """Run when LLM ends running."""
+        pass
+
+    def on_llm_error(
+        self, error: Union[Exception, KeyboardInterrupt], **kwargs: Any
+    ) -> Any:
+        """Run when LLM errors."""
+        pass
+
+    def on_chain_start(
+        self, serialized: Dict[str, Any], inputs: Dict[str, Any], **kwargs: Any
+    ) -> Any:
+        """Run when chain starts running."""
+        if 'context' in inputs:
+            self.context = inputs['context']
+
+    def on_chain_end(self, outputs: Dict[str, Any], **kwargs: Any) -> Any:
+        """Run when chain ends running."""
+        pass
+
+    def on_chain_error(
+        self, error: Union[Exception, KeyboardInterrupt], **kwargs: Any
+    ) -> Any:
+        """Run when chain errors."""
+        pass
+
+    def on_tool_start(
+        self, serialized: Dict[str, Any], input_str: str, **kwargs: Any
+    ) -> Any:
+        """Run when tool starts running."""
+        pass
+
+    def on_tool_end(self, output: str, **kwargs: Any) -> Any:
+        """Run when tool ends running."""
+        pass
+
+    def on_tool_error(
+        self, error: Union[Exception, KeyboardInterrupt], **kwargs: Any
+    ) -> Any:
+        """Run when tool errors."""
+        pass
+
+    def on_text(self, text: str, **kwargs: Any) -> Any:
+        """Run on arbitrary text."""
+        self.full_prompt = text
+
+    def on_agent_action(self, action: AgentAction, **kwargs: Any) -> Any:
+        """Run on agent action."""
+        pass
+
+    def on_agent_finish(self, finish: AgentFinish, **kwargs: Any) -> Any:
+        """Run on agent end."""
+        pass
+
 class CXOAgent(AgentBase):
     """
     Agent for providing CXO analysis.
@@ -130,14 +213,17 @@ class CXOAgent(AgentBase):
                               openai_api_version=config.get_value(completion_request.language_model.api_version),
                               model_version=config.get_value(completion_request.language_model.version))
 
+        self.handler = MyCustomHandler()
+
         self.llm_chain = ConversationalRetrievalChain.from_llm(
             llm=self.llm,
             retriever=self.retriever,
             return_source_documents=False,
             memory=memory,
+            callbacks = [self.handler],
             chain_type="stuff",
             combine_docs_chain_kwargs={"prompt": prompt},
-            verbose=True
+            #verbose=True
         )
 
         print('done with init')

@@ -11,7 +11,8 @@ class DataSource(MetadataBase):
     configuration: Union[
         CSVConfiguration,
         SQLDatabaseConfiguration,
+        CXOConfiguration,
         BlobStorageConfiguration,
-        SearchServiceConfiguration,
-        CXOConfiguration]
+        SearchServiceConfiguration
+        ]
     data_description: Optional[str] = None

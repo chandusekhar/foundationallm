@@ -47,46 +47,22 @@ class CSVAgent(AgentBase):
         self.llm = llm.get_completion_model(completion_request.language_model)
         self.message_history = completion_request.message_history
 
-        storage_manager = BlobStorageManager(
-            blob_connection_string = config.get_value(
-                ds_config.connection_string_secret
-            ),
-            container_name = ds_config.container
-        )
-
-        df_locals = {}
-        df_names = []
-        prompt_suffix_parts = []
-        
-        all_files = ds_config.files
-        # Reduce file list to only .csv files to prevent errors.
-        csv_files = [file for file in all_files if file.lower().endswith('.csv')]
-
-        for idx, file in enumerate(csv_files, start=1):
-            file_content = storage_manager.read_file_content(file).decode('utf-8')
-            buffer = StringIO(file_content)
-
-            df = pd.read_csv(buffer)
-            df_name = f'df{idx}'
-            df_names.append(df_name)
-            df_locals[df_name] = df
-            
-            prompt_suffix_parts.append(f'Result of `print({df_name}.head())` from {df_name}:\n{df.head(1).to_markdown()}')
+        df_locals, df_names, prompt_suffix_parts = self.__build_python_repl_tool(config, ds_config)
 
         tools = [
             PythonAstREPLTool(locals = df_locals)
         ]
 
-        memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
-        # Add previous messages to memory
-        for i in range(0, len(self.message_history), 2):
-            history_pair = itemgetter(i,i+1)(self.message_history)
-            for message in history_pair:
-                if message.sender.lower() == 'user':
-                    user_input = message.text
-                else:
-                    ai_output = message.text
-            memory.save_context({"input": user_input}, {"output": ai_output})
+        memory = ConversationBufferMemory(memory_key="chat_history") #, return_messages=True)
+        # #Add previous messages to memory
+        # for i in range(0, len(self.message_history), 2):
+        #     history_pair = itemgetter(i,i+1)(self.message_history)
+        #     for message in history_pair:
+        #         if message.sender.lower() == 'user':
+        #             user_input = message.text
+        #         else:
+        #             ai_output = message.text
+        #     memory.save_context({"input": user_input}, {"output": ai_output})
 
         self.prompt_prefix = completion_request.agent.prompt_prefix
         self.prompt_prefix += f'\nYou are working with {len(df_names)} pandas dataframe{"s"[:len(df_names)^1]} in Python named {", ".join(df_names)}.'
@@ -97,12 +73,25 @@ class CSVAgent(AgentBase):
         self.prompt_suffix += '\n\n'.join(prompt_suffix_parts)
         self.prompt_suffix += '\n\nBegin!\n\n{chat_history}\n\nQuestion: {input}\n{agent_scratchpad}'
 
+        FORMAT_INSTRUCTIONS = """Use the following format:
+Question: the input question you must answer
+Thought: you should always think about what to do
+Action: the action to take, can only be one of: {tool_names}
+Action Input: the input to the action, never add backticks "`" around the action input
+Observation: the result of the action
+... (this Thought/Action/Action Input/Observation can repeat N times)
+Thought: I now know the final answer
+Final Answer: the final answer to the original input question
+Please respect the order of the steps Thought/Action/Action Input/Observation
+"""
+
         input_variables = ['input', 'chat_history', 'agent_scratchpad']
 
         prompt = ZeroShotAgent.create_prompt(
             tools,
             prefix = self.prompt_prefix,
             suffix = self.prompt_suffix,
+            format_instructions = FORMAT_INSTRUCTIONS,
             input_variables = input_variables
         )
 
@@ -110,11 +99,11 @@ class CSVAgent(AgentBase):
             llm_chain=LLMChain(llm=self.llm, prompt=prompt),
             allowed_tools=[tool.name for tool in tools]
         )
-        
+
         self.agent = AgentExecutor.from_agent_and_tools(
             agent=zsa,
             tools=tools,
-            verbose=True,
+            #verbose=True,
             memory=memory,
             handle_parsing_errors='Check your output and make sure it conforms!'
         )
@@ -123,33 +112,60 @@ class CSVAgent(AgentBase):
     def prompt_template(self) -> str:
         """
         Property for viewing the agent's prompt template.
-        
+
         Returns
         str
             Returns the prompt template for the agent.
         """
         return self.agent.agent.llm_chain.prompt.template
 
+    def __build_python_repl_tool(self, config, ds_config):
+        df_names = []
+        df_locals = {}
+        prompt_suffix_parts = []
+        all_files = ds_config.files
+        # Reduce file list to only .csv files to prevent errors.
+        csv_files = [file for file in all_files if file.lower().endswith('.csv')]
+        storage_manager = BlobStorageManager(
+            blob_connection_string = config.get_value(
+                ds_config.connection_string_secret
+            ),
+            container_name = ds_config.container
+        )
+
+        for idx, file in enumerate(csv_files, start=1):
+            file_content = storage_manager.read_file_content(file).decode('utf-8')
+            buffer = StringIO(file_content)
+
+            df = pd.read_csv(buffer)
+            df_name = f'df{idx}'
+            df_names.append(df_name)
+            df_locals[df_name] = df
+
+            prompt_suffix_parts.append(f'Result of `print({df_name}.head())` for {df_name}:\n{df.head(1).to_markdown(tablefmt="plain")}')
+
+        return df_locals, df_names, prompt_suffix_parts
+
     def run(self, prompt: str) -> CompletionResponse:
         """
         Executes a query against the contents of a CSV file.
-        
+
         Parameters
         ----------
         prompt : str
             The prompt for which a completion is begin generated.
-        
+
         Returns
         -------
         CompletionResponse
-            Returns a CompletionResponse with the CSV file query completion response, 
+            Returns a CompletionResponse with the CSV file query completion response,
             the user_prompt, and token utilization and execution cost details.
         """
         with get_openai_callback() as cb:
             return CompletionResponse(
                 completion = self.agent.run(prompt),
                 user_prompt = prompt,
-                system_prompt = self.prompt_template,
+                full_prompt = self.prompt_template,
                 completion_tokens = cb.completion_tokens,
                 prompt_tokens = cb.prompt_tokens,
                 total_tokens = cb.total_tokens,

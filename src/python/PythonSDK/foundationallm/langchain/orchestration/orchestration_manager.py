@@ -12,7 +12,7 @@ class OrchestrationManager:
                  configuration: Configuration, context: Context):
         """
         Initializes an instance of the OrchestrationManager.
-        
+
         Parameters
         ----------
         completion_request : CompletionRequest
@@ -35,12 +35,12 @@ class OrchestrationManager:
     def __get_llm(self, language_model: LanguageModel) -> BaseLanguageModel:
         """
         Retrieves the language model to use for the completion.
-        
+
         Parameters
         ----------
         language_model : LanguageModel
             Language model metadata object used to create the BaseLanguageModel LLM object.
-        
+
         Returns
         -------
         BaseLanguageModel
@@ -50,14 +50,14 @@ class OrchestrationManager:
 
     def run(self, prompt: str) -> CompletionResponse:
         """
-        Executes a completion request against the LanguageModel using 
+        Executes a completion request against the LanguageModel using
         the LangChain agent assembled by the OrchestrationManager.
-        
+
         Parameters
         ----------
         prompt : str
             The prompt for which a completion is being generated.
-            
+
         Returns
         -------
         CompletionResponse
