@@ -1414,22 +1414,6 @@ namespace FoundationaLLM.Configuration.Catalog
         ];
 
         /// <summary>
-        /// The LangChain API configuration entries for the solution.
-        /// </summary>
-        public static readonly List<AppConfigurationEntry> LangChainAPI =
-        [
-            new(
-                key: Common.Constants.AppConfigurationKeys.FoundationaLLM_LangChainAPI_Key,
-                minimumVersion: "0.3.0",
-                defaultValue: "Key Vault secret name: `foundationallm-langchainapi-key`",
-                description: "This is a Key Vault reference.",
-                keyVaultSecretName: Common.Constants.KeyVaultSecretNames.FoundationaLLM_LangChainAPI_Key,
-                contentType: "text/plain",
-                sampleObject: null
-            )
-        ];
-
-        /// <summary>
         /// The Management configuration entries for the solution.
         /// </summary>
         public static readonly List<AppConfigurationEntry> Management =
@@ -1906,7 +1890,6 @@ namespace FoundationaLLM.Configuration.Catalog
             allEntries.AddRange(Event);
             allEntries.AddRange(Instance);
             allEntries.AddRange(LangChain);
-            allEntries.AddRange(LangChainAPI);
             allEntries.AddRange(Management);
             allEntries.AddRange(ManagementAPI);
             allEntries.AddRange(OpenAI);

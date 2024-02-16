@@ -146,7 +146,12 @@ The client application's configured permissions should now look like the followi
 3. Select the **App Configuration** resource and select **Configuration explorer** to view the values.
 4. Create the following App Configuration key-value pairs:
 
-   - `FoundationaLLM:VectorizationAPI:Entra:ClientId`: The **Application (client) ID** of the API application that you created earlier.
+   - `FoundationaLLM:Vectorization:Entra:ClientId`: The **Application (client) ID** of the **client** application that you [created earlier](#register-the-client-application-in-the-microsoft-entra-id-admin-center).
+   - `FoundationaLLM:Vectorization:Entra:Scopes`: The fully-qualified scopes path for the API application that you [created earlier](#expose-an-api-for-the-api-application). For example, it should look something like `api://d85a09ce067141d5807a/Data.Manage`.
+   - `FoundationaLLM:Vectorization:Entra:CallbackPath`: `/signin-oidc`.
+   - `FoundationaLLM:Vectorization:Entra:Instance`: `https://login.microsoftonline.com/`.
+   - `FoundationaLLM:Vectorization:Entra:TenantId`: The **Directory (tenant) ID** of the **client** application that you [created earlier](#register-the-client-application-in-the-microsoft-entra-id-admin-center).
+   - `FoundationaLLM:VectorizationAPI:Entra:ClientId`: The **Application (client) ID** of the **API** application that you [created earlier](#register-the-api-application-in-the-microsoft-entra-id-admin-center).
    - `FoundationaLLM:VectorizationAPI:Entra:Instance`: `https://login.microsoftonline.com/`
-   - `FoundationaLLM:VectorizationAPI:Entra:TenantId`: The **Directory (tenant) ID** of the client application that you created earlier.
+   - `FoundationaLLM:VectorizationAPI:Entra:TenantId`: The **Directory (tenant) ID** of the **API** application that you [created earlier](#register-the-api-application-in-the-microsoft-entra-id-admin-center).
    - `FoundationaLLM:VectorizationAPI:Entra:Scopes`: `Data.Manage`

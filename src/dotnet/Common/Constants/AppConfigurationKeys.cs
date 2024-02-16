@@ -812,6 +812,10 @@ namespace FoundationaLLM.Common.Constants
         /// </summary>
         public const string FoundationaLLM_ManagementAPI_Entra = "FoundationaLLM:ManagementAPI:Entra:*";
         /// <summary>
+        /// The key filter for the FoundationaLLM:VectorizationAPI:Entra:* app configuration settings.
+        /// </summary>
+        public const string FoundationaLLM_VectorizationAPI_Entra = "FoundationaLLM:VectorizationAPI:Entra:*";
+        /// <summary>
         /// The key filter for the FoundationaLLM:AgentFactory:* app configuration settings.
         /// </summary>
         public const string FoundationaLLM_AgentFactory = "FoundationaLLM:AgentFactory:*";

@@ -114,10 +114,6 @@ namespace FoundationaLLM.Common.Constants
         /// </summary>
         public const string FoundationaLLM_LangChain_SQLDatabase_Testdb_Password = "foundationallm-langchain-sqldatabase-testdb-password";
         /// <summary>
-        /// The foundationallm-langchainapi-key Key Vault secret name.
-        /// </summary>
-        public const string FoundationaLLM_LangChainAPI_Key = "foundationallm-langchainapi-key";
-        /// <summary>
         /// The foundationallm-management-entra-clientsecret Key Vault secret name.
         /// </summary>
         public const string FoundationaLLM_Management_Entra_ClientSecret = "foundationallm-management-entra-clientsecret";
