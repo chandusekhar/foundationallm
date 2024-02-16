@@ -2,6 +2,7 @@
 using FoundationaLLM.Common.Authentication;
 using FoundationaLLM.Vectorization.Interfaces;
 using FoundationaLLM.Vectorization.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FoundationaLLM.Vectorization.API.Controllers
@@ -15,7 +16,8 @@ namespace FoundationaLLM.Vectorization.API.Controllers
     /// <param name="vectorizationService"></param>
     [ApiVersion(1.0)]
     [ApiController]
-    [APIKeyAuthentication]
+    [Authorize]
+    [Authorize(Policy = "RequiredScope")]
     [Route("[controller]")]
     public class VectorizationRequestController(
         IVectorizationService vectorizationService) : ControllerBase
