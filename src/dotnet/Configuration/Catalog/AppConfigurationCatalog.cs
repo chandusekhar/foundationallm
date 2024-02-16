@@ -1754,11 +1754,60 @@ namespace FoundationaLLM.Configuration.Catalog
         public static readonly List<AppConfigurationEntry> Vectorization =
         [
             new(
+                key: Common.Constants.AppConfigurationKeys.FoundationaLLM_Vectorization_Entra_CallbackPath,
+                minimumVersion: "0.4.0",
+                defaultValue: "/signin-oidc",
+                description: "",
+                keyVaultSecretName: "",
+                contentType: "text/plain",
+                sampleObject: null
+            ),
+
+            new(
+                key: Common.Constants.AppConfigurationKeys.FoundationaLLM_Vectorization_Entra_ClientId,
+                minimumVersion: "0.4.0",
+                defaultValue: "",
+                description: "",
+                keyVaultSecretName: "",
+                contentType: "text/plain",
+                sampleObject: null
+            ),
+
+            new(
+                key: Common.Constants.AppConfigurationKeys.FoundationaLLM_Vectorization_Entra_Instance,
+                minimumVersion: "0.4.0",
+                defaultValue: "Enter the URL to the service.",
+                description: "",
+                keyVaultSecretName: "",
+                contentType: "text/plain",
+                sampleObject: null
+            ),
+
+            new(
+                key: Common.Constants.AppConfigurationKeys.FoundationaLLM_Vectorization_Entra_Scopes,
+                minimumVersion: "0.4.0",
+                defaultValue: "api://FoundationaLLM-Vectorization-Auth/Data.Manage",
+                description: "",
+                keyVaultSecretName: "",
+                contentType: "text/plain",
+                sampleObject: null
+            ),
+
+            new(
+                key: Common.Constants.AppConfigurationKeys.FoundationaLLM_Vectorization_Entra_TenantId,
+                minimumVersion: "0.4.0",
+                defaultValue: "",
+                description: "",
+                keyVaultSecretName: "",
+                contentType: "text/plain",
+                sampleObject: null
+            ),
+
+            new(
                 key: Common.Constants.AppConfigurationKeys.FoundationaLLM_Vectorization_VectorizationWorker,
                 minimumVersion: "0.3.0",
                 defaultValue: "",
-                description:
-                "The settings used by each instance of the vectorization worker service. For more details, see [default vectorization worker settings](../setup-guides/vectorization/vectorization-worker.md#default-vectorization-worker-settings)",
+                description: "The settings used by each instance of the vectorization worker service.",
                 keyVaultSecretName: "",
                 contentType: "text/plain",
                 sampleObject: null
@@ -1866,6 +1915,52 @@ namespace FoundationaLLM.Configuration.Catalog
         ];
 
         /// <summary>
+        /// The Vectorization API configuration entries for the solution.
+        /// </summary>
+        public static readonly List<AppConfigurationEntry> VectorizationAPI =
+        [
+            new(
+                key: Common.Constants.AppConfigurationKeys.FoundationaLLM_VectorizationAPI_Entra_ClientId,
+                minimumVersion: "0.4.0",
+                defaultValue: "",
+                description: "",
+                keyVaultSecretName: "",
+                contentType: "text/plain",
+                sampleObject: null
+            ),
+
+            new(
+                key: Common.Constants.AppConfigurationKeys.FoundationaLLM_VectorizationAPI_Entra_Instance,
+                minimumVersion: "0.4.0",
+                defaultValue: "Enter the URL to the service.",
+                description: "",
+                keyVaultSecretName: "",
+                contentType: "text/plain",
+                sampleObject: null
+            ),
+
+            new(
+                key: Common.Constants.AppConfigurationKeys.FoundationaLLM_VectorizationAPI_Entra_Scopes,
+                minimumVersion: "0.4.0",
+                defaultValue: "Data.Manage",
+                description: "",
+                keyVaultSecretName: "",
+                contentType: "text/plain",
+                sampleObject: null
+            ),
+
+            new(
+                key: Common.Constants.AppConfigurationKeys.FoundationaLLM_VectorizationAPI_Entra_TenantId,
+                minimumVersion: "0.4.0",
+                defaultValue: "",
+                description: "",
+                keyVaultSecretName: "",
+                contentType: "text/plain",
+                sampleObject: null
+            )
+        ];
+
+        /// <summary>
         /// Returns the list of all the app configuration entries for this solution.
         /// </summary>
         /// <returns></returns>
@@ -1898,6 +1993,7 @@ namespace FoundationaLLM.Configuration.Catalog
             allEntries.AddRange(SemanticKernelAPI);
             allEntries.AddRange(UserPortal);
             allEntries.AddRange(Vectorization);
+            allEntries.AddRange(VectorizationAPI);
 
             return allEntries;
         }

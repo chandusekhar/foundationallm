@@ -757,6 +757,42 @@ namespace FoundationaLLM.Common.Constants
         /// The key for the FoundationaLLM:Events:AzureEventGridEventService:Profiles:VectorizationWorker app configuration setting.
         /// </summary>
         public const string FoundationaLLM_Events_AzureEventGridEventService_Profiles_VectorizationWorker = "FoundationaLLM:Events:AzureEventGridEventService:Profiles:VectorizationWorker";
+        /// <summary>
+        /// The key for the FoundationaLLM:Vectorization:Entra:CallbackPath app configuration setting.
+        /// </summary>
+        public const string FoundationaLLM_Vectorization_Entra_CallbackPath = "FoundationaLLM:Vectorization:Entra:CallbackPath";
+        /// <summary>
+        /// The key for the FoundationaLLM:Vectorization:Entra:ClientId app configuration setting.
+        /// </summary>
+        public const string FoundationaLLM_Vectorization_Entra_ClientId = "FoundationaLLM:Vectorization:Entra:ClientId";
+        /// <summary>
+        /// The key for the FoundationaLLM:Vectorization:Entra:Instance app configuration setting.
+        /// </summary>
+        public const string FoundationaLLM_Vectorization_Entra_Instance = "FoundationaLLM:Vectorization:Entra:Instance";
+        /// <summary>
+        /// The key for the FoundationaLLM:Vectorization:Entra:Scopes app configuration setting.
+        /// </summary>
+        public const string FoundationaLLM_Vectorization_Entra_Scopes = "FoundationaLLM:Vectorization:Entra:Scopes";
+        /// <summary>
+        /// The key for the FoundationaLLM:Vectorization:Entra:TenantId app configuration setting.
+        /// </summary>
+        public const string FoundationaLLM_Vectorization_Entra_TenantId = "FoundationaLLM:Vectorization:Entra:TenantId";
+        /// <summary>
+        /// The key for the FoundationaLLM:VectorizationAPI:Entra:ClientId app configuration setting.
+        /// </summary>
+        public const string FoundationaLLM_VectorizationAPI_Entra_ClientId = "FoundationaLLM:VectorizationAPI:Entra:ClientId";
+        /// <summary>
+        /// The key for the FoundationaLLM:VectorizationAPI:Entra:Instance app configuration setting.
+        /// </summary>
+        public const string FoundationaLLM_VectorizationAPI_Entra_Instance = "FoundationaLLM:VectorizationAPI:Entra:Instance";
+        /// <summary>
+        /// The key for the FoundationaLLM:VectorizationAPI:Entra:Scopes app configuration setting.
+        /// </summary>
+        public const string FoundationaLLM_VectorizationAPI_Entra_Scopes = "FoundationaLLM:VectorizationAPI:Entra:Scopes";
+        /// <summary>
+        /// The key for the FoundationaLLM:VectorizationAPI:Entra:TenantId app configuration setting.
+        /// </summary>
+        public const string FoundationaLLM_VectorizationAPI_Entra_TenantId = "FoundationaLLM:VectorizationAPI:Entra:TenantId";
     }
 
     /// <summary>
