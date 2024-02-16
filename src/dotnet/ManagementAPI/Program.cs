@@ -246,7 +246,7 @@ namespace FoundationaLLM.Management.API
             // Set the CORS policy before other middleware.
             app.UseCors(allowAllCorsOrigins);
 
-            // For the CoreAPI, we need to make sure that UseAuthentication is called before the UserIdentityMiddleware.
+            // For the ManagementAPI, we need to make sure that UseAuthentication is called before the UserIdentityMiddleware.
             app.UseAuthentication();
             app.UseAuthorization();
 
