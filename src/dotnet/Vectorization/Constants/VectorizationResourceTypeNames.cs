@@ -1,7 +1,7 @@
 ﻿namespace FoundationaLLM.Vectorization.Constants
 {
     /// <summary>
-    /// Contains constants of the names of the resource types managed by the FoundationaLLM.Vectorization resource manager.
+    /// Contains constants of the names of the resource types managed by the FoundationaLLM.Vectorization resource provider.
     /// </summary>
     public static class VectorizationResourceTypeNames
     {

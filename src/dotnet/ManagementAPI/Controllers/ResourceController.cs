@@ -95,7 +95,7 @@ namespace FoundationaLLM.Management.API.Controllers
             catch (ResourceProviderException ex)
             {
                 _logger.LogError(ex, ex.Message);
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+                return StatusCode(ex.StatusCode, ex.Message);
             }
             catch (Exception ex)
             {

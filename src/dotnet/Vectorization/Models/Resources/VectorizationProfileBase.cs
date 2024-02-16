@@ -26,7 +26,7 @@ namespace FoundationaLLM.Vectorization.Models.Resources
         public Dictionary<string, string>? Settings { get; set; } = [];
 
         /// <summary>
-        /// Configuration references associated with the vectorizatio profile.
+        /// Configuration references associated with the vectorization profile.
         /// </summary>
         public Dictionary<string, string>? ConfigurationReferences { get; set; } = [];
     }

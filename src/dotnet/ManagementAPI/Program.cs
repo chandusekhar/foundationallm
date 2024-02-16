@@ -11,9 +11,9 @@ using FoundationaLLM.Common.OpenAPI;
 using FoundationaLLM.Common.Services;
 using FoundationaLLM.Common.Services.API;
 using FoundationaLLM.Common.Services.Azure;
-using FoundationaLLM.Common.Services.Azure;
 using FoundationaLLM.Common.Services.Security;
 using FoundationaLLM.Common.Settings;
+using FoundationaLLM.Common.Validation;
 using FoundationaLLM.Configuration.Interfaces;
 using FoundationaLLM.Configuration.Services;
 using FoundationaLLM.Configuration.Validation;
@@ -126,10 +126,15 @@ namespace FoundationaLLM.Management.API
             builder.Services.AddScoped<ICallContext, CallContext>();
             builder.Services.AddScoped<IHttpClientFactoryService, HttpClientFactoryService>();
 
+            // Add event services
+            builder.Services.AddAzureEventGridEvents(
+                builder.Configuration,
+                AppConfigurationKeySections.FoundationaLLM_Events_AzureEventGridEventService);
+
             //----------------------------
             // Resource providers
             //----------------------------
-
+            builder.Services.AddSingleton<IResourceValidatorFactory, ResourceValidatorFactory>();
             builder.Services.AddVectorizationResourceProvider(builder.Configuration);
             builder.Services.AddAgentResourceProvider(builder.Configuration);
             builder.Services.AddPromptResourceProvider(builder.Configuration);

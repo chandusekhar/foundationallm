@@ -14,6 +14,8 @@ using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
 using System.Text;
 using System.Text.Json;
+using FluentValidation;
+using Microsoft.AspNetCore.Http;
 
 namespace FoundationaLLM.Vectorization.ResourceProviders
 {
@@ -24,6 +26,7 @@ namespace FoundationaLLM.Vectorization.ResourceProviders
         IOptions<InstanceSettings> instanceOptions,
         [FromKeyedServices(DependencyInjectionKeys.FoundationaLLM_ResourceProvider_Vectorization)] IStorageService storageService,
         IEventService eventService,
+        IResourceValidatorFactory resourceValidatorFactory,
         ILogger<VectorizationResourceProviderService> logger)
         : ResourceProviderServiceBase(
             instanceOptions.Value,
@@ -31,6 +34,8 @@ namespace FoundationaLLM.Vectorization.ResourceProviders
             eventService,
             logger)
     {
+        private readonly IResourceValidatorFactory _resourceValidatorFactory = resourceValidatorFactory;
+
         /// <inheritdoc/>
         protected override Dictionary<string, ResourceTypeDescriptor> GetResourceTypes() => new()
         {
@@ -193,7 +198,8 @@ namespace FoundationaLLM.Vectorization.ResourceProviders
                 VectorizationResourceTypeNames.TextPartitioningProfiles => LoadProfiles<TextPartitioningProfile>(instances[0], _textPartitioningProfiles),
                 VectorizationResourceTypeNames.TextEmbeddingProfiles => LoadProfiles<TextEmbeddingProfile>(instances[0], _textEmbeddingProfiles),
                 VectorizationResourceTypeNames.IndexingProfiles => LoadProfiles<IndexingProfile>(instances[0], _indexingProfiles),
-                _ => throw new ResourceProviderException($"The resource type {instances[0].ResourceType} is not supported by the {_name} resource manager.")
+                _ => throw new ResourceProviderException($"The resource type {instances[0].ResourceType} is not supported by the {_name} resource provider.",
+                    StatusCodes.Status400BadRequest)
             };
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 
@@ -209,7 +215,8 @@ namespace FoundationaLLM.Vectorization.ResourceProviders
             else
             {
                 if (!profileStore.TryGetValue(instance.ResourceId, out var profile))
-                    throw new ResourceProviderException($"Could not locate the {instance.ResourceId} vectorization profile resource.");
+                    throw new ResourceProviderException($"Could not locate the {instance.ResourceId} vectorization profile resource.",
+                        StatusCodes.Status404NotFound);
 
                 return [profile];
             }
@@ -225,7 +232,8 @@ namespace FoundationaLLM.Vectorization.ResourceProviders
                 VectorizationResourceTypeNames.TextPartitioningProfiles => await UpdateProfile<TextPartitioningProfile>(instances, serializedResource, _textPartitioningProfiles, TEXT_PARTITIONING_PROFILES_FILE_PATH),
                 VectorizationResourceTypeNames.TextEmbeddingProfiles => await UpdateProfile<TextEmbeddingProfile>(instances, serializedResource, _textEmbeddingProfiles, TEXT_EMBEDDING_PROFILES_FILE_PATH),
                 VectorizationResourceTypeNames.IndexingProfiles => await UpdateProfile<IndexingProfile>(instances, serializedResource, _indexingProfiles, INDEXING_PROFILES_FILE_PATH),
-                _ => throw new ResourceProviderException($"The resource type {instances[0].ResourceType} is not supported by the {_name} resource manager."),
+                _ => throw new ResourceProviderException($"The resource type {instances[0].ResourceType} is not supported by the {_name} resource provider.",
+                    StatusCodes.Status400BadRequest),
             };
 
         #region Helpers for UpsertResourceAsync
@@ -234,11 +242,24 @@ namespace FoundationaLLM.Vectorization.ResourceProviders
             where T : VectorizationProfileBase
         {
             var profile = JsonSerializer.Deserialize<T>(serializedProfile)
-                ?? throw new ResourceProviderException("The object definition is invalid.");
+                ?? throw new ResourceProviderException("The object definition is invalid.",
+                    StatusCodes.Status400BadRequest);
             profile.ObjectId = GetObjectId(instances);
 
+            var validator = _resourceValidatorFactory.GetValidator<T>();
+            if (validator != null)
+            {
+                var validationResult = await validator.ValidateAsync(profile);
+                if (!validationResult.IsValid)
+                {
+                    throw new ResourceProviderException($"Validation failed: {string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage))}",
+                        StatusCodes.Status400BadRequest);
+                }
+            }
+
             if (instances[0].ResourceId != profile.Name)
-                throw new ResourceProviderException("The resource path does not match the object definition (name mismatch).");
+                throw new ResourceProviderException("The resource path does not match the object definition (name mismatch).",
+                    StatusCodes.Status400BadRequest);
 
             profileStore.AddOrUpdate(profile.Name, profile, (k,v) => profile);
 
@@ -265,7 +286,8 @@ namespace FoundationaLLM.Vectorization.ResourceProviders
                 VectorizationResourceTypeNames.ContentSourceProfiles => instances.Last().Action switch
                 {
                     VectorizationResourceProviderActions.CheckName => CheckProfileName<ContentSourceProfile>(serializedAction, _contentSourceProfiles),
-                    _ => throw new ResourceProviderException($"The action {instances.Last().Action} is not supported by the {_name} resource provider.")
+                    _ => throw new ResourceProviderException($"The action {instances.Last().Action} is not supported by the {_name} resource provider.",
+                        StatusCodes.Status400BadRequest)
                 },
                 _ => throw new ResourceProviderException()
             };
@@ -307,7 +329,8 @@ namespace FoundationaLLM.Vectorization.ResourceProviders
                 VectorizationResourceTypeNames.TextPartitioningProfiles => GetTextPartitioningProfile<T>(instances),
                 VectorizationResourceTypeNames.TextEmbeddingProfiles => GetTextEmbeddingProfile<T>(instances),
                 VectorizationResourceTypeNames.IndexingProfiles => GetIndexingProfile<T>(instances),
-                _ => throw new ResourceProviderException($"The resource type {instances[0].ResourceType} is not supported by the {_name} resource manager.")
+                _ => throw new ResourceProviderException($"The resource type {instances[0].ResourceType} is not supported by the {_name} resource provider.",
+                    StatusCodes.Status400BadRequest)
             };
 
         #region Helpers for GetResourceInternal<T>
@@ -373,10 +396,12 @@ namespace FoundationaLLM.Vectorization.ResourceProviders
             {
                 case VectorizationResourceTypeNames.VectorizationRequests:
                     await UpdateVectorizationRequest(instances, resource as VectorizationRequest ??
-                        throw new ResourceProviderException($"The type {typeof(T)} was not VectorizationRequest."));
+                        throw new ResourceProviderException($"The type {typeof(T)} was not VectorizationRequest.",
+                            StatusCodes.Status400BadRequest));
                     break;
                 default:
-                    throw new ResourceProviderException($"The resource type {instances[0].ResourceType} is not supported by the {_name} resource manager.");
+                    throw new ResourceProviderException($"The resource type {instances[0].ResourceType} is not supported by the {_name} resource provider.",
+                        StatusCodes.Status400BadRequest);
             }
         }
 

@@ -1,7 +1,7 @@
 ﻿namespace FoundationaLLM.Agent.Constants
 {
     /// <summary>
-    /// Contains constants of the names of the resource types managed by the FoundationaLLM.Agent resource manager.
+    /// Contains constants of the names of the resource types managed by the FoundationaLLM.Agent resource provider.
     /// </summary>
     public class AgentResourceTypeNames
     {
